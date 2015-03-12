@@ -109,7 +109,7 @@ $(function() {
         currentTimer += 1;
         setTimer();
 
-    });
+    }
 
   function enableNotifications() {
       if ((Notification) && (Notification.permission !== "granted")) {
