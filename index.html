@@ -14,54 +14,6 @@
   <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
   <script type="text/javascript">
-   var DMVC = function() {
-
-     var modelEl  = {},
-         actionEl = {};
-
-     var actions = {};
-
-     function initialize() {
-       $("[data-model]").each(function(index, elem) {
-         var modelName = elem.data('model');
-
-         if (modelEl[modelName] === undefined) {
-           modelEl[modelName] = [elem];
-         } else {
-           modelEl[modelName].push(elem);
-         }
-       });
-
-       $("[data-action]").each(function(index, elem) {
-         var actionName = elem.data('action');
-
-         if (actionEl[actionName] === undefined) {
-           actionEl[actionName] = [elem];
-         } else {
-           actionEl[actionName].push(elem);
-         }
-       });
-     }
-
-     function updateActions() {};
-       
-
-     initialize();
-
-     return {
-       on: function(actionName, callback) {
-         if (actions[actionName] === undefined) {
-           actions[actionName] = [callback];
-         } else {
-           actions[actionName].push(callback);
-         }
-         updateActions();
-       },
-     };
-
-   }
-  </script>
-  <script type="text/javascript">
 
    $(function() {
      var timeLeft      = null,
