@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <title>Pomodoro</title>
+  </head>
+  <body>
+    <h1>Basic Pomo</h1>
+    <h2 id="timerName"></h2>
+    <h2 id="timer"></h2>
+    <button id="toggle">Start</button> <button id="reset">Reset</button>
+    <br/>
+    <button id="enableNotify">Enable Notifications</button>
+  </body>
+
+  <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+  <script type="text/javascript">
+   var DMVC = function() {
+
+     var modelEl  = {},
+         actionEl = {};
+
+     var actions = {};
+
+     function initialize() {
+       $("[data-model]").each(function(index, elem) {
+         var modelName = elem.data('model');
+
+         if (modelEl[modelName] === undefined) {
+           modelEl[modelName] = [elem];
+         } else {
+           modelEl[modelName].push(elem);
+         }
+       });
+
+       $("[data-action]").each(function(index, elem) {
+         var actionName = elem.data('action');
+
+         if (actionEl[actionName] === undefined) {
+           actionEl[actionName] = [elem];
+         } else {
+           actionEl[actionName].push(elem);
+         }
+       });
+     }
+
+     function updateActions() {};
+       
+
+     initialize();
+
+     return {
+       on: function(actionName, callback) {
+         if (actions[actionName] === undefined) {
+           actions[actionName] = [callback];
+         } else {
+           actions[actionName].push(callback);
+         }
+         updateActions();
+       },
+     };
+
+   }
+  </script>
+  <script type="text/javascript">
+
+   $(function() {
+     var timeLeft      = null,
+         counting      = false,
+         timer         = null,
+         currentTimer  = 0,
+         notifyEnabled = false;
+
+     var timers = [
+       {name: "Work", length: 50*60},
+       {name: "Break", length: 10*60},
+       {name: "Work", length: 50*60},
+       {name: "Long Break", length: 15*60}
+     ];
+
+     var ding = new Audio("ding.wav");
+
+     init();
+
+     function init() {
+
+       $('#toggle')      .on('click', toggleTimer);
+       $('#reset')       .on('click', setTimer);
+       $('#enableNotify').on('click', enableNotifications);
+
+       setTimer();
+       updateDisplay();
+
+     }
+
+     function padDigits(number, digits) {
+
+       return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
+
+     }
+
+
+     function updateDisplay() {
+
+       var hours = timeLeft.hours();
+       var minutes = timeLeft.minutes(); // - (hours*60);
+       var seconds = timeLeft.seconds(); // - (timeLeft.minutes()*60);
+
+       var displayText = padDigits(hours, 2)+":"+padDigits(minutes, 2)+":"+padDigits(seconds, 2);
+       
+       $('#timerName').text(timers[currentTimer].name);
+       $('#timer').text(displayText);
+       document.title = timers[currentTimer].name + ": " + displayText + " - Basic Pomo";
+
+     }         
+
+
+     function tick() {
+
+       timeLeft.subtract(1, 's');
+
+       updateDisplay();
+
+       if (timeLeft.asSeconds() === 0) {
+
+         ding.play();
+
+         if (Notification.permission === "granted") {
+           var notification = new Notification("Timer complete");
+         } else {
+           window.alert("Timer complete!");
+         }
+
+         currentTimer++;
+         setTimer();
+       }
+
+       if (counting) {
+         timer = setTimeout(tick, 1000);
+       }
+
+     }
+
+     function toggleTimer() {
+
+       if (counting) {
+         clearTimeout(timer);
+         $(this).text("Start");
+         counting = false;
+       } else {
+         $(this).text("Pause");
+         timer = setTimeout(tick, 1000);
+         counting = true;
+       }
+
+     }
+
+     function setTimer() {
+
+       if (currentTimer === timers.length) {
+         currentTimer = 0;
+       }
+
+       timeLeft = moment.duration(timers[currentTimer].length, 's');
+
+       updateDisplay();
+
+     }
+
+     function enableNotifications() {
+       if ((Notification) && (Notification.permission !== "granted")) {
+         Notification.requestPermission(function(status) {
+           if (Notification.permission !== status) {
+             Notification.permission = status;
+           }
+
+           var n = new Notification("test");
+           console.dir(n);
+           console.debug(status);
+         });
+       }
+     }
+
+   });
+  </script>
+</html>
